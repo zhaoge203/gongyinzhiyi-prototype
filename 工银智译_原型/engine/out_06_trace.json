@@ -1,0 +1,130 @@
+{
+ "R1": {
+  "log": [
+   "[parse] 解析 R1，得到 104 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 22.6 vs 原文 24.4 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] R1 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 13,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 22.6,
+    "src_avg": 24.4,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "R2": {
+  "log": [
+   "[parse] 解析 R2，得到 120 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 19.1 vs 原文 22.3 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] R2 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 13,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 19.1,
+    "src_avg": 22.3,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "R3": {
+  "log": [
+   "[parse] 解析 R3，得到 139 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 18.0 vs 原文 22.3 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] R3 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 18.0,
+    "src_avg": 22.3,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "R4": {
+  "log": [
+   "[parse] 解析 R4，得到 116 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 15.2 vs 原文 22.7 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] R4 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 15,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 15.2,
+    "src_avg": 22.7,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ }
+}

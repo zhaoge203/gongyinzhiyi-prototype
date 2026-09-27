@@ -1,0 +1,73 @@
+{
+ "rows": [
+  {
+   "code": "R1",
+   "name": "工银瑞信如意货币市场基金（A 类份额）",
+   "type": "货币市场基金",
+   "operation": "普通开放式",
+   "open_freq": "每个开放日",
+   "min_holding": "无",
+   "comprehensive_fee": "0.45%",
+   "management_fee": "0.15%",
+   "custodian_fee": "0.05%",
+   "redemption_rule": "通常情况下不收取申购费用和赎回费用；但在特定流动性风险情形下（现金、国债、央行票据、政策性金融债及5个交易日内到期其他金融工具占基金资产净值比例合计低于5%且偏离度为负，或前10名份额持有人持有份额合计超过基金总份额50%且上述比例合计低于10%且偏离度为负时），对当日单个持有人超过基金总份额1%以上的赎回申请征收1%的强制赎回费用，并全额计入基金财产。",
+   "benchmark": "中国人民银行公布的七天通知存款税后利率。",
+   "risk_count": 10,
+   "side_pocket": false,
+   "leverage": false,
+   "hk_connect": false
+  },
+  {
+   "code": "R2",
+   "name": "工银瑞信信用纯债债券型证券投资基金（A 类份额）",
+   "type": "债券型",
+   "operation": "普通开放式",
+   "open_freq": "每个开放日",
+   "min_holding": "无",
+   "comprehensive_fee": "0.40%",
+   "management_fee": "0.3%",
+   "custodian_fee": "0.1%",
+   "redemption_rule": "申购费按金额分档：非养老金客户M＜100万元收0.80%、100万元≤M＜300万元收0.50%、300万元≤M＜500万元收0.30%、M≥500万元收1,000元/笔；养老金客户对应为0.32%、0.15%、0.06%、1,000元/笔。赎回费按持有期限收取：N＜7天1.50%、7天≤N＜30天0.75%、30天≤N＜1年0.10%、1年≤N＜2年0.05%、N≥2年0.00%。",
+   "benchmark": "80%×中债信用债（财富）总指数收益率+20%×中债国开行债券（1~3年）总财富指数",
+   "risk_count": 6,
+   "side_pocket": true,
+   "leverage": false,
+   "hk_connect": false
+  },
+  {
+   "code": "R3",
+   "name": "工银瑞信圆丰三年持有期混合型证券投资基金",
+   "type": "混合型",
+   "operation": "其他开放式",
+   "open_freq": "每个开放日申购，每份基金份额设定3年最短持有期",
+   "min_holding": "3年",
+   "comprehensive_fee": "1.40%",
+   "management_fee": "1.2%",
+   "custodian_fee": "0.2%",
+   "redemption_rule": "申购费按金额分档收取（100万元以下1.5%，100万至300万元1.0%，300万至500万元0.8%，500万元及以上每笔1000元），本基金不收取赎回费。",
+   "benchmark": "中证 700指数收益率*65%+中债综合财富(总值)指数收益率*30%+恒生指数收益率*5%。",
+   "risk_count": 8,
+   "side_pocket": false,
+   "leverage": true,
+   "hk_connect": true
+  },
+  {
+   "code": "R4",
+   "name": "工银瑞信创新动力股票型证券投资基金",
+   "type": "股票型",
+   "operation": "普通开放式",
+   "open_freq": "每个开放日",
+   "min_holding": "无",
+   "comprehensive_fee": "1.41%",
+   "management_fee": "1.2%",
+   "custodian_fee": "0.2%",
+   "redemption_rule": "申购费按金额分档：100万元以下1.50%、100万元（含）至300万元1.00%、300万元（含）至500万元0.80%、500万元（含）以上每笔1,000元；赎回费按持有期限分档：30天以下1.50%、30天（含）至1年0.50%、1年（含）至2年0.30%、2年（含）以上0.00%。",
+   "benchmark": "80%×中证 800指数收益率＋20%×中债综合财富（总值）指数收益率。",
+   "risk_count": 7,
+   "side_pocket": false,
+   "leverage": true,
+   "hk_connect": false
+  }
+ ],
+ "max_min_fee_ratio": 3.52
+}
