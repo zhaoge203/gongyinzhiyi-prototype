@@ -255,6 +255,8 @@ function cmpTable(hint){
   var h='<table><tr><th>指标</th>'+cols.map(function(c){
       return '<th>'+c+'<span class="sub">'+esc(D.cmp.types[c]||'')+'</span></th>'; }).join('')+'</tr>';
   (D.cmp.rows||[]).forEach(function(r){
+    // 当前勾选的产品在该行全部缺值（都是横杠）→ 整行不显示
+    if(cols.every(function(c){ return !(r.values||{})[c]; })) return;
     h+='<tr><td><b>'+esc(r.label)+'</b></td>'+cols.map(function(c){
       var v=(r.values||{})[c]; return '<td>'+(v?esc(v):'—')+'</td>'; }).join('')+'</tr>';
   });
