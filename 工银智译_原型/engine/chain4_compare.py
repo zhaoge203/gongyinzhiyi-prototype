@@ -23,7 +23,6 @@ from langchain_deepseek import ChatDeepSeek
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(HERE, '..', '..', '..', '工银智译_生成源文件'))
 import fidelity as FID  # noqa: E402
 from chain2_extract import _load_deepseek_key, _norm  # noqa: E402
 

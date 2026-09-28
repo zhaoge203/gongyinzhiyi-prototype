@@ -19,7 +19,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_deepseek import ChatDeepSeek
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, '..', '..', '..', '工银智译_生成源文件'))
 
 
 class RiskItem(BaseModel):

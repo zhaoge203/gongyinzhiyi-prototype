@@ -634,5 +634,38 @@
   },
   "retry_extract": 1,
   "retry_interpret": 2
+ },
+ "P06": {
+  "log": [
+   "[parse] 解析 P06，得到 692 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成失败：1 validation error for Interpretation\nrisk_sources\n  Input should be a valid list [type=list_type, input_value='[\"B558\",",
+   "[validate] 无解读结果，判定不合格",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 18.5 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 13,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 18.5,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
  }
 }

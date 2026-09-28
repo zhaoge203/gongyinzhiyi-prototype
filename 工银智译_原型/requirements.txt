@@ -1,0 +1,6 @@
+# 工银智译 引擎依赖（Python 3.10+，开发验证于 3.12 / 3.14）
+langchain-core>=1.0
+langchain-deepseek>=1.0
+langgraph>=0.6
+pypdf>=5.0
+pydantic>=2.0
