@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROTO = os.path.dirname(HERE)
@@ -32,6 +33,84 @@ def _clean(v):
 ptypes = {c: _clean((cmpj.get('product_types') or {}).get(c))
           or _clean(cmpj.get('rows') and cmpj['rows'][products.index(c)].get('type'))
           for c in products}
+
+# ---------- 展示辅助数据（均由引擎产出派生，无外部信息） ----------
+# 流动性时间轴：把「最短持有期」映射到 5 档（0 随时可取 ~ 4 一年以上）
+def hold_level(v):
+    v = (v or '').strip()
+    if not v or v in ('无', '—', '-', '不限', '随时'):
+        return 0
+    m = re.search(r'(\d+)\s*年', v)
+    if m:
+        return 3 if int(m.group(1)) <= 1 else 4
+    m = re.search(r'(\d+)\s*个?月', v)
+    if m:
+        return 3 if int(m.group(1)) <= 12 else 4
+    m = re.search(r'(\d+)\s*天', v)
+    if m:
+        d = int(m.group(1))
+        return 1 if d <= 7 else (2 if d <= 30 else 3)
+    return 2  # 有持有期约束但解析不出时长 → 中间档
+
+def hold_from_title(t):
+    """数据兜底：银行理财说明书没有「最短持有期」字段时，从标题里的封闭期信息推断
+    （如「137天封闭」「封闭式」）——仅展示用途。"""
+    m = re.search(r'(\d+)\s*天', t or '')
+    if m:
+        d = int(m.group(1))
+        return 1 if d <= 7 else (2 if d <= 30 else 3)
+    if '封闭' in (t or ''):
+        return 4
+    return None
+
+
+minh = {}
+for r in cmpj.get('rows', []):
+    lv = hold_level(_clean(r.get('min_holding')))
+    if lv == 0:
+        lv = hold_from_title(parsed[r['code']]['title']) or 0
+    minh[r['code']] = lv
+
+# 风险卡类别颜色与判定：优先取锚点原文块的风险标签（链一在原文上打的），
+# 块上无标签时用关键词回退（块原文 → 卡片文本），最终兜底「其他风险」
+RISK_COLOR = {
+    '流动性风险': '#d97c2b', '市场风险': '#c0392b', '信用风险': '#8e44ad',
+    '杠杆风险': '#b03a2e', '汇率与跨境风险': '#2471a3', '操作与合规风险': '#707b7c',
+    '机制特有风险': '#148f77', '其他风险': '#909497',
+}
+FB_KW = {
+    '流动性风险': ['流动性', '赎回', '变现', '持有期', '侧袋', '巨额赎回', '封闭', '不能动', '取不出'],
+    '市场风险': ['市场波动', '证券市场价格', '股价', '指数', '净值波动', '净值', '利率', '本金',
+                '亏损', '保证', '收益为负', '波动'],
+    '信用风险': ['信用', '违约'],
+    '杠杆风险': ['杠杆', '保证金', '期货', '强制平仓'],
+    '汇率与跨境风险': ['汇率', '港股通', '境外', '跨境', '美元', 'QDII'],
+    '操作与合规风险': ['操作风险', '合规', '管理风险', '技术'],
+    '机制特有风险': ['机制', '存托凭证', '资产支持证券', '科创板', '新股', '上市交易', '折溢价', '合同终止'],
+}
+
+
+def _kw_cat(text):
+    for cat, kws in FB_KW.items():
+        if any(k in text for k in kws):
+            return cat
+    return None
+
+
+rcats = {}
+for c in products:
+    it = interp.get(c) or {}
+    intr = it.get('interpretation') or {}
+    cards = intr.get('risk_cards') or []
+    srcs = intr.get('risk_sources') or []
+    cats = []
+    for i, card in enumerate(cards):
+        bid = re.split(r'[,，、;；\s|]+', (srcs[i] or '').strip())[0] if i < len(srcs) and srcs[i] else ''
+        b = blocks[c].get(bid) if bid else None
+        cat = (b['risk_tags'][0] if b and b.get('risk_tags') else None) \
+              or _kw_cat(b['text'] if b else '') or _kw_cat(card) or '其他风险'
+        cats.append(cat)
+    rcats[c] = cats
 
 HTML_HEAD = """<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
@@ -76,6 +155,18 @@ tr:nth-child(even) td{background:#fcfafa}
 #cmpwrap th,#cmpwrap td{max-width:230px;min-width:86px;vertical-align:top}
 #cmpwrap th .sub{display:block;font-weight:400;font-size:11px;color:#a05564;margin-top:2px}
 .pick .hint{width:100%;font-size:11px;color:#96969b;margin:0 0 2px}
+/* 流动性时间轴 */
+.tl{margin-top:10px}
+.tl-bar{position:relative;height:10px;border-radius:6px;
+        background:linear-gradient(90deg,#3aa56b 0%,#e8c34a 45%,#c0392b 100%)}
+.tl-bar i{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;
+          background:#fff;border:4px solid #9E1B32;transform:translateX(-50%)}
+.tl-ticks{display:flex;justify-content:space-between;font-size:10px;color:#96969b;margin-top:5px}
+.tl-tag{display:inline-block;margin-top:8px;font-size:11px;color:#9E1B32;font-weight:700}
+/* 风险卡类别着色 */
+.card.rsk{border-left-width:4px}
+.chip{display:inline-block;font-size:10px;color:#fff;border-radius:8px;
+      padding:1px 7px;margin-right:6px;vertical-align:1px}
 .g{color:#278a58;font-weight:700}.r{color:#9E1B32;font-weight:700}
 pre{background:#fff;border:1px solid #e4dede;border-radius:9px;padding:12px;font-size:12px;
     line-height:1.75;white-space:pre-wrap;font-family:Consolas,"Microsoft YaHei",monospace}
@@ -137,10 +228,14 @@ data = {'parsed': {c: parsed[c]['title'] for c in products}}
 html.append('<script>')
 html.append('var D=' + json.dumps({
     'interp': {c: interp[c] for c in products if 'interpretation' in interp[c]},
-    'blocks': {c: {k: {'text': v['text'], 'page': v['page'], 'section': v['section']}
+    'blocks': {c: {k: {'text': v['text'], 'page': v['page'], 'section': v['section'],
+                       'tags': v.get('risk_tags') or []}
                    for k, v in blocks[c].items()} for c in products},
     'trace': trace,
     'cmp': {'products': products, 'types': ptypes, 'rows': cmpj.get('table_rows') or []},
+    'minh': minh,
+    'rcats': rcats,
+    'rcolor': RISK_COLOR,
 }, ensure_ascii=False) + ';')
 
 html.append("""
@@ -181,15 +276,24 @@ function render(){
     h+='<div class="card"><div class="ttl">本产品关键参数</div><div class="txt">'+
        '类型：'+esc(ra['__t']||'')+'见右侧对照表</div></div>';
   } else if(tab==='risk'){
+    var cats=D.rcats[cur]||[];
     (it.risk_cards||[]).forEach(function(c,i){
-      h+='<div class="card"><div class="txt"><b>'+(i+1)+'. </b>'+esc(c)+'</div>'+
+      var cat=cats[i]||'其他风险', col=D.rcolor[cat]||'#909497';
+      h+='<div class="card rsk" style="border-left-color:'+col+'"><div class="txt"><b>'+(i+1)+'. </b>'+
+         '<span class="chip" style="background:'+col+'">'+esc(cat)+'</span>'+esc(c)+'</div>'+
          '<div class="meta">'+srcLine(cur, (it.risk_sources||[])[i])+'</div></div>';
     });
   } else if(tab==='fee'){
     h+='<div class="card fee"><div class="ttl">解读</div><div class="txt">'+esc(it.fee_plain)+
        '</div><div class="meta">'+srcLine(cur, it.fee_source)+'</div></div>';
+    var stops=['随时可取','一周内','一个月内','一年内','一年以上'];
+    var lv=(D.minh[cur]==null)?2:D.minh[cur];
     h+='<div class="card liq"><div class="ttl">这笔钱多久不能动</div><div class="txt">'+
-       esc(it.liquidity_plain)+'</div><div class="meta">'+srcLine(cur, it.liquidity_source)+'</div></div>';
+       esc(it.liquidity_plain)+'</div>'+
+       '<div class="tl"><div class="tl-bar"><i style="left:'+(lv*25)+'%"></i></div>'+
+       '<div class="tl-ticks">'+stops.map(function(s){return '<span>'+s+'</span>';}).join('')+'</div>'+
+       '<span class="tl-tag">本产品位置：'+stops[lv]+'</span></div>'+
+       '<div class="meta">'+srcLine(cur, it.liquidity_source)+'</div></div>';
   } else if(tab==='compare'){
     h+='<div style="overflow-x:auto">'+cmpTable('')+'</div><div class="note">与右侧表格联动：'
       +'点上方产品按钮即可更换比对对象。横向比较是本平台区别于单产品解读的核心能力：'
