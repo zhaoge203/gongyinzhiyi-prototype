@@ -21,6 +21,17 @@ trace = load('out_06_trace.json')
 
 blocks = {c: {b['id']: b for b in parsed[c]['blocks']} for c in parsed}
 products = sorted(parsed)
+DEFAULT = products[0]          # 默认选中的产品（不再写死 R3）
+DEFAULT_CMP = products[:4]     # 默认加入对照表的产品（多选，可切换）
+def _clean(v):
+    if isinstance(v, str) and v.strip().lower() in ('null', 'none', ''):
+        return ''
+    return v or ''
+
+
+ptypes = {c: _clean((cmpj.get('product_types') or {}).get(c))
+          or _clean(cmpj.get('rows') and cmpj['rows'][products.index(c)].get('type'))
+          for c in products}
 
 HTML_HEAD = """<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
@@ -62,6 +73,9 @@ table{width:100%;border-collapse:collapse;background:#fff;font-size:12.5px}
 th,td{border:1px solid #e4dede;padding:8px 10px;text-align:left}
 th{background:#f7f1f2;color:#9E1B32;font-weight:700}
 tr:nth-child(even) td{background:#fcfafa}
+#cmpwrap th,#cmpwrap td{max-width:230px;min-width:86px;vertical-align:top}
+#cmpwrap th .sub{display:block;font-weight:400;font-size:11px;color:#a05564;margin-top:2px}
+.pick .hint{width:100%;font-size:11px;color:#96969b;margin:0 0 2px}
 .g{color:#278a58;font-weight:700}.r{color:#9E1B32;font-weight:700}
 pre{background:#fff;border:1px solid #e4dede;border-radius:9px;padding:12px;font-size:12px;
     line-height:1.75;white-space:pre-wrap;font-family:Consolas,"Microsoft YaHei",monospace}
@@ -90,45 +104,32 @@ html.append('</div></div>')
 # ---------- 右：对照 / 指标 / 轨迹 ----------
 html.append('<div class="panel">')
 html.append('<div class="pick">')
+html.append('<div class="hint">点击产品按钮加入 / 移出对照表（建议选 2–5 只比对）；点击同时切换左侧详情</div>')
 for c in products:
     html.append('<button data-p="%s"%s>%s %s</button>'
-                % (c, ' class="on"' if c == 'R3' else '', c, parsed[c]['title'][:12]))
+                % (c, ' class="on"' if c in DEFAULT_CMP else '', c, parsed[c]['title'][:12]))
 html.append('</div>')
 
-html.append('<h2>同类产品对照（数据未经改算）</h2><table><tr><th>指标</th>')
-for c in products:
-    html.append('<th>%s<br><span style="font-weight:400;font-size:11px">%s</span></th>'
-                % (c, cmpj['rows'][products.index(c)]['type']))
-html.append('</tr>')
-cmp_rows = [
-    ('运作综合费率（年化）', lambda r: '<b>%s</b>' % r['comprehensive_fee']),
-    ('管理费 / 托管费', lambda r: '%s / %s' % (r['management_fee'], r['custodian_fee'])),
-    ('最短持有期', lambda r: r['min_holding']),
-    ('杠杆 / 期货', lambda r: '有' if r['leverage'] else '无'),
-    ('港股通', lambda r: '有' if r['hk_connect'] else '无'),
-    ('侧袋机制', lambda r: '有' if r['side_pocket'] else '无'),
-]
-for name, fn in cmp_rows:
-    html.append('<tr><td><b>%s</b></td>' % name)
-    for r in cmpj['rows']:
-        html.append('<td>%s</td>' % fn(r))
-    html.append('</tr>')
-html.append('</table>')
+# 对照表：行结构由 out_04 的 table_rows 驱动（链四由大模型决定或兜底），
+# 列由用户在前端勾选的产品集合决定；表格由 JS 渲染进 cmpwrap，容器横向滚动防拥挤
+html.append('<h2>同类产品对照（数据未经改算）</h2><div id="cmpwrap" style="overflow-x:auto"></div>')
 html.append('<div class="note">最高与最低综合费率相差 <b>%s 倍</b>。'
             '本页只做同一口径的并列呈现，不评价产品优劣、不构成投资建议。</div>'
             % cmpj['max_min_fee_ratio'])
 
 a = metrics['aggregate']
-html.append('<h2 style="margin-top:20px">引擎实测指标</h2><div class="kpis">')
+# 隐藏区：引擎实测指标（数据保留在 HTML 中，仅不显示）
+html.append('<div style="display:none"><h2 style="margin-top:20px">引擎实测指标</h2><div class="kpis">')
 for n, v in [('锚点有效率', '%.1f%%' % a['anchor_pass_rate']),
              ('表达合规率', '%.1f%%' % a['expression_pass_rate']),
              ('保真度（数值一致）', '100.0%'),
              ('可读性门禁', '%d/%d' % (a['quality_gate_pass'], a['products']))]:
     html.append('<div class="kpi"><div class="n">%s</div><div class="v">%s</div></div>' % (n, v))
-html.append('</div>')
+html.append('</div></div>')  # 结束隐藏区：引擎实测指标
 
-html.append('<h2>全链路审计轨迹</h2><pre id="trace"></pre>')
-html.append('<div class="note">每次生成的检索来源、校验结果与回退次数均留档，支持监管调阅与内部稽核。</div>')
+# 隐藏区：全链路审计轨迹（数据保留在 HTML 中，仅不显示）
+html.append('<div style="display:none"><h2>全链路审计轨迹</h2><pre id="trace"></pre>')
+html.append('<div class="note">每次生成的检索来源、校验结果与回退次数均留档，支持监管调阅与内部稽核。</div></div>')
 html.append('</div></div>')
 
 # ---------- 数据与交互 ----------
@@ -139,10 +140,12 @@ html.append('var D=' + json.dumps({
     'blocks': {c: {k: {'text': v['text'], 'page': v['page'], 'section': v['section']}
                    for k, v in blocks[c].items()} for c in products},
     'trace': trace,
+    'cmp': {'products': products, 'types': ptypes, 'rows': cmpj.get('table_rows') or []},
 }, ensure_ascii=False) + ';')
 
 html.append("""
-var cur='R3', tab='summary';
+var cur='__DEFAULT__', tab='summary';
+var sel=__SEL__;               // 对照表当前勾选的产品集合（多选）
 function ancList(raw){ if(!raw) return []; return String(raw).split(/[,，、;；\\s]+/).filter(Boolean); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(m){
   return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]; }); }
@@ -152,13 +155,26 @@ function srcLine(code, raw){
   var t=b.text.length>64? b.text.slice(0,64)+'…' : b.text;
   return '原文 '+ids[0]+'（第'+b.page+'页）：'+esc(t);
 }
+function cmpTable(hint){
+  var cols=D.cmp.products.filter(function(c){ return sel.indexOf(c)>=0; });
+  var h='<table><tr><th>指标</th>'+cols.map(function(c){
+      return '<th>'+c+'<span class="sub">'+esc(D.cmp.types[c]||'')+'</span></th>'; }).join('')+'</tr>';
+  (D.cmp.rows||[]).forEach(function(r){
+    h+='<tr><td><b>'+esc(r.label)+'</b></td>'+cols.map(function(c){
+      var v=(r.values||{})[c]; return '<td>'+(v?esc(v):'—')+'</td>'; }).join('')+'</tr>';
+  });
+  return h+'</table>'+(hint||'');
+}
+function renderCmp(){
+  document.getElementById('cmpwrap').innerHTML=cmpTable('');
+}
 function render(){
   var r=D.interp[cur]; if(!r){ document.getElementById('screen').innerHTML='<p>无数据</p>'; return; }
   var it=r.interpretation, ra=r.resolved_anchors||{}, h='';
   if(tab==='summary'){
     h+='<div class="card hl"><div class="ttl">一句话摘要</div><div class="txt">'+esc(it.summary)+
        '</div><div class="meta">'+srcLine(cur, it.summary_source)+'</div></div>';
-    h+='<div class="card"><div class="ttl">这份解读可信吗</div><div class="txt">'+
+    h+='<div class="card" style="display:none"><div class="ttl">这份解读可信吗</div><div class="txt">'+
        '锚点校验 <b>'+((r.anchor_check_pass)?'通过':'未通过')+'</b>　表达合规 <b>'+
        ((r.expression_check_pass)?'通过':'未通过')+'</b>　受检项 <b>'+r.checked_items+
        '</b>　生成尝试 <b>'+r.attempts+'</b> 次</div></div>';
@@ -175,10 +191,8 @@ function render(){
     h+='<div class="card liq"><div class="ttl">这笔钱多久不能动</div><div class="txt">'+
        esc(it.liquidity_plain)+'</div><div class="meta">'+srcLine(cur, it.liquidity_source)+'</div></div>';
   } else if(tab==='compare'){
-    h+='<table><tr><th>指标</th>'+['R1','R2','R3','R4'].map(function(c){
-        return '<th>'+c+'</th>'; }).join('')+'</tr>';
-    [['综合费率',function(c){var x=D.interp[c];return '';}],].length;
-    h+='</table><div class="note">完整对照见右侧表格。横向比较是本平台区别于单产品解读的核心能力：'
+    h+='<div style="overflow-x:auto">'+cmpTable('')+'</div><div class="note">与右侧表格联动：'
+      +'点上方产品按钮即可更换比对对象。横向比较是本平台区别于单产品解读的核心能力：'
       +'投资者真正要回答的问题是「A 和 B 我该选哪个」。</div>';
   } else {
     (it.glossary||[]).forEach(function(g,i){
@@ -198,14 +212,17 @@ document.querySelectorAll('.tabs button').forEach(function(b){
 });
 document.querySelectorAll('.pick button').forEach(function(b){
   b.onclick=function(){
-    document.querySelectorAll('.pick button').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on'); cur=b.dataset.p; render();
+    var p=b.dataset.p, i=sel.indexOf(p);
+    if(i>=0){ if(sel.length>1){ sel.splice(i,1); b.classList.remove('on'); } }
+    else { sel.push(p); b.classList.add('on'); }
+    cur=p; render(); renderCmp();
   };
 });
-render();
+render(); renderCmp();
 </script></body></html>
 """)
 
-io.open(OUT, 'w', encoding='utf-8').write(''.join(html))
+out_html = ''.join(html).replace('__DEFAULT__', DEFAULT).replace('__SEL__', json.dumps(DEFAULT_CMP))
+io.open(OUT, 'w', encoding='utf-8').write(out_html)
 print('已生成可点原型：', OUT)
 print('大小：%.1f KB' % (os.path.getsize(OUT) / 1024.0))

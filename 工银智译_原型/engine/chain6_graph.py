@@ -63,12 +63,26 @@ class State(TypedDict, total=False):
     log: Annotated[List[str], operator.add]
 
 
+def _load_deepseek_key():
+    """优先环境变量 DEEPSEEK_API_KEY；否则依次找 engine/.env、项目根 .env。"""
+    key = os.environ.get('DEEPSEEK_API_KEY')
+    if key:
+        return key.strip().strip('"').strip("'")
+    for path in (os.path.join(HERE, '.env'),
+                 os.path.join(os.path.dirname(HERE), '.env'),
+                 r'D:\MyStudy\FTEC5660\.env'):
+        if os.path.exists(path):
+            for ln in io.open(path, encoding='utf-8'):
+                m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
+                if m:
+                    return m.group(1).strip().strip('"').strip("'")
+    return None
+
+
 def llm_setup():
-    key = None
-    for ln in io.open(r'D:\MyStudy\FTEC5660\.env', encoding='utf-8'):
-        m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
-        if m:
-            key = m.group(1).strip().strip('"').strip("'")
+    key = _load_deepseek_key()
+    if not key:
+        raise SystemExit('未找到 DEEPSEEK_API_KEY（请设置环境变量，或在 engine/.env 中写入 DEEPSEEK_API_KEY=...）')
     os.environ['DEEPSEEK_API_KEY'] = key
     from langchain_deepseek import ChatDeepSeek
     return ChatDeepSeek(model='deepseek-chat', temperature=0, max_tokens=4000)
@@ -309,16 +323,26 @@ def build_graph(with_checkpointer=True):
 
 
 def run_all():
-    """正常路径：四只产品跑通全流程"""
+    """正常路径：全部产品跑通全流程。
+    支持 `python chain6_graph.py P01 P02 ...` 只跑指定产品（分块执行），
+    已有轨迹自动跳过——20+ 产品时避免单次运行过久。"""
     global LLM
     LLM = llm_setup()
     parsed = json.load(io.open(os.path.join(HERE, 'out_01_parsed.json'), encoding='utf-8'))
     app = build_graph()
+    sel = sys.argv[1:]
+    codes = [c for c in sorted(parsed) if not sel or c in sel]
+    tp = os.path.join(HERE, 'out_06_trace.json')
     trace = {}
+    if os.path.exists(tp):
+        trace = json.load(io.open(tp, encoding='utf-8'))
     print('=' * 78)
     print('LangGraph 状态机 · 正常路径（条件路由 + 回退重试 + 人工复核闸门）')
     print('=' * 78)
-    for code in sorted(parsed):
+    for code in codes:
+        if trace.get(code, {}).get('log'):
+            print('\n--- %s 已有轨迹，跳过 ---' % code)
+            continue
         cfg = {'configurable': {'thread_id': 'kfs-' + code}}
         init = {'code': code, 'doc': parsed[code], 'retry_extract': 0,
                 'retry_interpret': 0, 'log': []}
@@ -354,7 +378,14 @@ def demo_human_review():
     parsed = json.load(io.open(os.path.join(HERE, 'out_01_parsed.json'), encoding='utf-8'))
     facts = json.load(io.open(os.path.join(HERE, 'out_02_facts.json'), encoding='utf-8'))
 
-    code = 'R3'
+    # 自动选择演示产品：优先挑「有最短持有期」的产品（演示语义最接近原 R3 圆丰），
+    # 没有则取排序最后一只；不再依赖任何文件名/编号约定
+    codes = sorted(parsed)
+    hold = {c: (((facts.get(c) or {}).get('llm') or {}).get('min_holding') or '') for c in codes}
+    with_hold = [c for c in codes
+                 if hold[c] and hold[c] not in ('无', '不限', '—', '-')]
+    code = sorted(with_hold, key=lambda c: hold[c], reverse=True)[0] if with_hold else codes[-1]
+    print('演示产品：%s（%s）' % (code, parsed[code]['title']))
     app = build_graph()
     thread = {'configurable': {'thread_id': 'demo-review-' + code}}
     thread2 = {'configurable': {'thread_id': 'demo-review2-' + code}}
@@ -367,9 +398,12 @@ def demo_human_review():
 
     os.environ['GYZY_FORCE_REVIEW'] = '1'
     try:
+        f_entry = facts.get(code) or {}
         init = {
-            'code': code, 'doc': parsed[code], 'facts': facts[code]['llm'],
-            'regex_facts': facts[code]['regex'], 'cross_check_pass': True,
+            'code': code, 'doc': parsed[code],
+            'facts': f_entry.get('llm') or f_entry.get('regex') or {},
+            'regex_facts': f_entry.get('regex') or {},
+            'cross_check_pass': True,
             'retry_extract': 1, 'retry_interpret': 0, 'log': [],
         }
 
@@ -445,6 +479,8 @@ def demo_human_review():
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'demo':
         demo_human_review()
+    elif len(sys.argv) > 1:
+        run_all()               # 分块执行：只跑指定产品，不重复演示
     else:
         run_all()
         demo_human_review()

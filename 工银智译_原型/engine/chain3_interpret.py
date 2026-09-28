@@ -174,12 +174,26 @@ def normalize_quiz_options(data):
     return []
 
 
+def _load_deepseek_key():
+    """优先环境变量 DEEPSEEK_API_KEY；否则依次找 engine/.env、项目根 .env。"""
+    key = os.environ.get('DEEPSEEK_API_KEY')
+    if key:
+        return key.strip().strip('"').strip("'")
+    for path in (os.path.join(HERE, '.env'),
+                 os.path.join(os.path.dirname(HERE), '.env'),
+                 r'D:\MyStudy\FTEC5660\.env'):
+        if os.path.exists(path):
+            for ln in io.open(path, encoding='utf-8'):
+                m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
+                if m:
+                    return m.group(1).strip().strip('"').strip("'")
+    return None
+
+
 def main():
-    key = None
-    for ln in io.open(r'D:\MyStudy\FTEC5660\.env', encoding='utf-8'):
-        m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
-        if m:
-            key = m.group(1).strip().strip('"').strip("'")
+    key = _load_deepseek_key()
+    if not key:
+        raise SystemExit('未找到 DEEPSEEK_API_KEY（请设置环境变量，或在 engine/.env 中写入 DEEPSEEK_API_KEY=...）')
     os.environ['DEEPSEEK_API_KEY'] = key
 
     parsed = json.load(io.open(os.path.join(HERE, 'out_01_parsed.json'), encoding='utf-8'))

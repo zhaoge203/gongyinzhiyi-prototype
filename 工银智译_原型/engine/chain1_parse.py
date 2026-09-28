@@ -7,17 +7,20 @@
 设计要点：锚点是后续「逐句溯源」的唯一依据，因此每个块必须携带
 可回到原文的定位信息（页码 + 原文片段），不做任何改写。
 """
+import hashlib
 import io
 import json
 import os
 import re
 import sys
 
-sys.path.insert(0, r'D:\MyStudy\.pdftools')
 import pypdf
 
-PDF_DIR = r'D:\MyStudy\工行杯\example'
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.abspath(__file__))
+PDF_DIR = os.path.join(os.path.dirname(HERE), 'data')
+if not os.path.isdir(PDF_DIR):
+    PDF_DIR = r'D:\MyStudy\工行杯\example'  # 兼容旧环境
+OUT_DIR = HERE
 
 # 章节标题（KFS 固定结构）
 SECTION_PAT = re.compile(
@@ -62,6 +65,11 @@ def tag_risk(text):
     return tags
 
 
+def _title_ok(t):
+    """标题 sanity check：太长或带正文书写的标题视为抓取失败。"""
+    return bool(t) and len(t) <= 30 and not re.search(r'[；;。，,、：:]', t)
+
+
 def parse_pdf(path):
     reader = pypdf.PdfReader(path)
     doc = {
@@ -99,24 +107,45 @@ def parse_pdf(path):
                 'text': line,
                 'risk_tags': tag_risk(line),
             })
+    # 标题兜底：内容抓取不合格时用文件名做展示名（仅显示用途，不做任何解析依赖）
+    if not _title_ok(doc['title']):
+        doc['title'] = re.sub(r'\.pdf$', '', os.path.basename(path), flags=re.I)
+        doc['title_source'] = 'filename'
+    else:
+        doc['title_source'] = 'content'
     return doc
 
 
 def main():
-    files = sorted(f for f in os.listdir(PDF_DIR) if f.lower().endswith('.pdf'))
+    # 递归扫描 data/ 下所有子文件夹；文件名不做任何假设；
+    # 按内容 MD5 去重（同一产品放了两份只解析一次）；代号按扫描顺序自动编号 P01、P02……
     out = {}
-    for f in files:
-        code = f.split('-')[0].strip()
-        d = parse_pdf(os.path.join(PDF_DIR, f))
-        d['code'] = code
-        out[code] = d
-        tagged = sum(1 for b in d['blocks'] if b['risk_tags'])
-        print('%-4s %-46s 页=%-2d 块=%-4d 带风险标签=%-3d' % (
-            code, d['title'] or f, d['pages'], len(d['blocks']), tagged))
+    seen = {}
+    n = 0
+    for dirpath, _, filenames in os.walk(PDF_DIR):
+        for f in sorted(filenames):
+            if not f.lower().endswith('.pdf'):
+                continue
+            path = os.path.join(dirpath, f)
+            with open(path, 'rb') as fh:
+                h = hashlib.md5(fh.read()).hexdigest()
+            rel = os.path.relpath(path, PDF_DIR)
+            if h in seen:
+                print('跳过重复文件：%s（内容同 %s）' % (rel, seen[h]))
+                continue
+            n += 1
+            code = 'P%02d' % n
+            seen[h] = rel
+            d = parse_pdf(path)
+            d['code'] = code
+            out[code] = d
+            tagged = sum(1 for b in d['blocks'] if b['risk_tags'])
+            print('%-4s %-46s 页=%-2d 块=%-4d 带风险标签=%-3d' % (
+                code, d['title'] or f, d['pages'], len(d['blocks']), tagged))
 
     with io.open(os.path.join(OUT_DIR, 'out_01_parsed.json'), 'w', encoding='utf-8') as fh:
         json.dump(out, fh, ensure_ascii=False, indent=1)
-    print('\n已写出 out_01_parsed.json')
+    print('\n共解析 %d 份文档，已写出 out_01_parsed.json' % n)
 
 
 if __name__ == '__main__':

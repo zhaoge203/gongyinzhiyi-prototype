@@ -15,10 +15,119 @@ import json
 import os
 import re
 import sys
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_deepseek import ChatDeepSeek
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import fidelity as FID
+sys.path.insert(0, os.path.join(HERE, '..', '..', '..', '工银智译_生成源文件'))
+import fidelity as FID  # noqa: E402
+from chain2_extract import _load_deepseek_key, _norm  # noqa: E402
+
+
+class TableRow(BaseModel):
+    label: str = Field(description="行标题，规范简短，如「运作综合费率（年化）」")
+    values: Dict[str, Optional[str]] = Field(
+        description="每个产品代码对应的取值，必须逐字使用输入中给出的值；该产品无此指标时为 null")
+
+
+class TablePlan(BaseModel):
+    rows: List[TableRow] = Field(description="对照表的行，按展示顺序排列")
+    reason: str = Field(description="行选择与排序的理由，一句话")
+
+
+def _catalog_per_product(parsed, facts, rows):
+    """汇总每只产品「已抽取到的」全部指标（固定字段 + 正则派生 + LLM 额外指标），
+    作为大模型决定表格行的输入素材。"""
+    catalog = {}
+    for r in rows:
+        f = (facts.get(r['code']) or {}).get('llm') or {}
+        items = {}
+        fixed = [
+            ('产品类型', _norm(f.get('product_type'))),
+            ('运作方式', _norm(f.get('operation'))),
+            ('开放频率', _norm(f.get('open_frequency'))),
+            ('最短持有期', _norm(f.get('min_holding'))),
+            ('运作综合费率（年化）', _norm(f.get('comprehensive_fee'))),
+            ('管理费', _norm(f.get('management_fee'))),
+            ('托管费', _norm(f.get('custodian_fee'))),
+            ('销售服务费', _norm(f.get('sales_service_fee'))),
+            ('业绩比较基准', _norm(f.get('benchmark'))),
+            ('申购赎回规则', _norm(f.get('redemption_rule'))),
+            ('杠杆/期货', '有' if r['leverage'] else None),
+            ('港股通', '有' if r['hk_connect'] else None),
+            ('侧袋机制', '有' if r['side_pocket'] else None),
+        ]
+        for name, v in fixed:
+            if v:
+                items[name] = v
+        for ind in (f.get('extra_indicators') or []):
+            nm = (ind.get('name') or '').strip()
+            val = (ind.get('value') or '').strip()
+            if nm and val and nm not in items:
+                items[nm] = val
+        catalog[r['code']] = items
+    return catalog
+
+
+TABLE_PROMPT = ChatPromptTemplate.from_messages([
+    ("system",
+     "你是银行财富管理条线的合规资料整理员。给定若干金融产品的已抽取指标"
+     "（各产品披露的指标集合可能不同），由你决定一张跨产品对照表应展示哪些行。\n"
+     "硬性约束：\n"
+     "1) 合并同义指标（如「业绩基准」「业绩比较基准」合并为一行），一行只讲一件事；\n"
+     "2) 只保留有跨产品对照价值的行；少于 2 个产品有该指标的，除非是风险类关键条款，否则不要；\n"
+     "3) 排序直觉：费率成本 → 流动性（持有期/开放频率）→ 投资范围与机制 → 其他；\n"
+     "4) 取值必须逐字使用输入中给出的值，不得改写、不得推断、不得补充任何外部信息；\n"
+     "5) 产品没有该指标时，values 中对应代码填 null；\n"
+     "6) 不使用「稳健」「安全」「推荐」等评价性词汇。"),
+    ("human", "产品代码列表：{codes}\n\n各产品已抽取指标（JSON）：\n{catalog}"),
+])
+
+
+def llm_table_rows(parsed, facts, rows):
+    """让大模型决定对照表的行结构。返回 (table_rows, 是否用了 LLM)。
+    LLM 失败或返回空表时退回固定 6 行，保证演示不挂。"""
+    fallback = fixed_table_rows(rows)
+    key = _load_deepseek_key()
+    if not key:
+        print('   未配置 DEEPSEEK_API_KEY，对照表使用固定 6 行')
+        return fallback, False
+    os.environ['DEEPSEEK_API_KEY'] = key
+    catalog = _catalog_per_product(parsed, facts, rows)
+    codes = sorted(parsed)
+    try:
+        llm = ChatDeepSeek(model='deepseek-chat', temperature=0, max_tokens=8000)
+        structured = llm.with_structured_output(TablePlan)
+        plan = structured.invoke(TABLE_PROMPT.invoke({
+            'codes': '、'.join(codes), 'catalog': json.dumps(catalog, ensure_ascii=False)}))
+        got = [{'label': r.label, 'values': r.values} for r in (plan.rows or [])]
+        if not got:
+            raise ValueError('LLM 返回空表')
+        return got, True
+    except Exception as e:
+        print('   对照表 LLM 规划失败（%s），退回固定 6 行' % str(e)[:120])
+        return fallback, False
+
+
+def fixed_table_rows(rows):
+    """原固定 6 行的等价实现，作为 LLM 失败时的兜底。"""
+    def val(r, k):
+        return r.get(k) if r.get(k) else None
+    return [
+        {'label': '运作综合费率（年化）',
+         'values': {r['code']: val(r, 'comprehensive_fee') for r in rows}},
+        {'label': '管理费 / 托管费',
+         'values': {r['code']: ('%s / %s' % (r['management_fee'], r['custodian_fee']))
+                    if (r.get('management_fee') or r.get('custodian_fee')) else None for r in rows}},
+        {'label': '最短持有期', 'values': {r['code']: val(r, 'min_holding') for r in rows}},
+        {'label': '杠杆 / 期货', 'values': {r['code']: '有' if r['leverage'] else None for r in rows}},
+        {'label': '港股通', 'values': {r['code']: '有' if r['hk_connect'] else None for r in rows}},
+        {'label': '侧袋机制', 'values': {r['code']: '有' if r['side_pocket'] else None for r in rows}},
+    ]
 
 # 面向普通投资者的常用词表（示意性子集，工程上应替换为完整词表）
 COMMON_PERCENT_KEEP = {'%'}
@@ -77,12 +186,25 @@ def main():
             'hk_connect': '港股通' in text,
         })
 
-    # 费率差倍数的客观计算（不引入任何外部数据）
-    fees = [float(r['comprehensive_fee'].rstrip('%')) for r in rows
-            if r['comprehensive_fee']]
+    # 费率差倍数的客观计算（不引入任何外部数据；解析不出百分比的值一律跳过，
+    # 异构文档可能没有综合费率概念）
+    def _fee_num(v):
+        if not isinstance(v, str):
+            return None
+        v = v.strip().rstrip('%').strip()
+        try:
+            return float(v)
+        except ValueError:
+            return None
+    fees = [n for n in (_fee_num(r['comprehensive_fee']) for r in rows) if n is not None]
     fee_ratio = round(max(fees) / min(fees), 2) if fees else None
 
-    comparison = {'rows': rows, 'max_min_fee_ratio': fee_ratio}
+    # 对照表行由大模型决定（异构文档的指标集合不同），失败兜底固定 6 行
+    table_rows, used_llm = llm_table_rows(parsed, facts, rows)
+
+    comparison = {'rows': rows, 'max_min_fee_ratio': fee_ratio,
+                  'table_rows': table_rows, 'table_by_llm': used_llm,
+                  'product_types': {r['code']: r['type'] for r in rows}}
 
     # ---------- 链五：质量评测 ----------
     term_set = set()
@@ -179,15 +301,18 @@ def main():
         json.dump(metrics, fh, ensure_ascii=False, indent=1)
 
     print('=' * 74)
-    print('同类产品对照（真实数据，来源：官方产品资料概要）')
+    print('同类产品对照（真实数据，来源：官方产品资料概要；表格行%s）'
+          % ('由大模型决定' if used_llm else '为固定兜底 6 行'))
     print('=' * 74)
-    hdr = ['代码', '类型', '综合费率', '最短持有期', '杠杆/期货', '港股通', '侧袋']
-    print('%-5s %-8s %-9s %-10s %-9s %-7s %s' % tuple(hdr))
-    for r in rows:
-        print('%-5s %-8s %-9s %-10s %-9s %-7s %s' % (
-            r['code'], r['type'], r['comprehensive_fee'], r['min_holding'],
-            '是' if r['leverage'] else '否', '是' if r['hk_connect'] else '否',
-            '是' if r['side_pocket'] else '否'))
+    codes = [r['code'] for r in rows]
+    width = max([len(t['label']) for t in table_rows] + [2])
+    print(('%-*s' % (width, '指标')) + ''.join('  %-10s' % c for c in codes))
+    for t in table_rows:
+        line = '%-*s' % (width, t['label'])
+        for c in codes:
+            v = (t.get('values') or {}).get(c)
+            line += '  %-10s' % (v if v else '—')
+        print(line)
     print('\n最高/最低综合费率倍数：%s 倍' % fee_ratio)
 
     print('\n' + '=' * 74)

@@ -29,6 +29,12 @@ class RiskItem(BaseModel):
     source_quote: str = Field(description="支撑上述结论的原文片段，必须逐字摘自输入文本")
 
 
+class Indicator(BaseModel):
+    name: str = Field(description="指标名称，简短规范，如「起购金额」「业绩比较基准」「产品期限」")
+    value: str = Field(description="指标取值，直接摘自原文，如「1元」「沪深300指数」")
+    source_quote: str = Field(description="支撑该指标的原文片段，必须逐字摘自输入文本")
+
+
 class Facts(BaseModel):
     product_type: Optional[str] = Field(None, description="基金类型/产品类型")
     operation: Optional[str] = Field(None, description="运作方式")
@@ -41,6 +47,10 @@ class Facts(BaseModel):
     sales_service_fee: Optional[str] = Field(None, description="销售服务费率，没有则填「无」")
     benchmark: Optional[str] = Field(None, description="业绩比较基准")
     risk_items: List[RiskItem] = Field(default_factory=list, description="识别出的风险条目，按重要性降序")
+    extra_indicators: List[Indicator] = Field(
+        default_factory=list,
+        description="文档中明确披露的、适合跨产品对照的其他客观指标"
+                    "（如起购金额、业绩比较基准、产品期限、收益分配方式、风险等级等），宁缺勿错")
 
 
 PROMPT = ChatPromptTemplate.from_messages([
@@ -51,7 +61,9 @@ PROMPT = ChatPromptTemplate.from_messages([
      "1) 只使用输入文本中明确出现的信息，不得推断、不得补充外部知识、不得改变任何数值；\n"
      "2) source_quote 必须逐字摘自输入文本，不得改写；\n"
      "3) 找不到的字段填 null，无法确认的信息宁缺勿错；\n"
-     "4) 不给出投资建议，不使用「稳健」「安全」「推荐」等评价性词汇。"),
+     "4) 不给出投资建议，不使用「稳健」「安全」「推荐」等评价性词汇；\n"
+     "5) 文档中明确披露的其他可对照客观指标（如起购金额、业绩比较基准、产品期限、"
+     "收益分配方式、风险等级、投资范围等）一并收录进 extra_indicators，宁缺勿错。"),
     ("human", "产品代码：{code}\n\n以下是该产品的产品资料概要原文片段：\n\n{context}"),
 ])
 
@@ -127,14 +139,41 @@ def cross_check(llm_f, rg):
     return (len(diffs) == 0), diffs
 
 
+def _load_deepseek_key():
+    """优先环境变量 DEEPSEEK_API_KEY；否则依次找 engine/.env、项目根 .env。"""
+    key = os.environ.get('DEEPSEEK_API_KEY')
+    if key:
+        return key.strip().strip('"').strip("'")
+    for path in (os.path.join(HERE, '.env'),
+                 os.path.join(os.path.dirname(HERE), '.env'),
+                 r'D:\MyStudy\FTEC5660\.env'):
+        if os.path.exists(path):
+            for ln in io.open(path, encoding='utf-8'):
+                m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
+                if m:
+                    return m.group(1).strip().strip('"').strip("'")
+    return None
+
+
+def _norm(v):
+    """把 LLM 输出的字符串 'null'/'none'/空串 归一化为 None（治本：
+    部分文档没有某字段时，模型会填字符串 "null" 而非 JSON null）。"""
+    if isinstance(v, str) and v.strip().lower() in ('null', 'none', 'n/a', ''):
+        return None
+    return v
+
+
+def _norm_facts(fd):
+    for k, v in list(fd.items()):
+        if isinstance(v, str):
+            fd[k] = _norm(v)
+    return fd
+
+
 def main():
-    key = None
-    for ln in io.open(r'D:\MyStudy\FTEC5660\.env', encoding='utf-8'):
-        m = re.match(r'^DEEPSEEK_API_KEY\s*=\s*(.+)$', ln.strip())
-        if m:
-            key = m.group(1).strip().strip('"').strip("'")
+    key = _load_deepseek_key()
     if not key:
-        raise SystemExit('未找到 DEEPSEEK_API_KEY')
+        raise SystemExit('未找到 DEEPSEEK_API_KEY（请设置环境变量，或在 engine/.env 中写入 DEEPSEEK_API_KEY=...）')
     os.environ['DEEPSEEK_API_KEY'] = key
 
     parsed = json.load(io.open(os.path.join(HERE, 'out_01_parsed.json'), encoding='utf-8'))
@@ -149,7 +188,7 @@ def main():
         print('--- %s 上下文 %d 字 ---' % (code, len(ctx)))
         try:
             facts = chain.invoke({'code': code, 'context': ctx})
-            fd = facts.model_dump()
+            fd = _norm_facts(facts.model_dump())
         except Exception as e:
             print('   LLM 抽取失败：%s' % str(e)[:160])
             results[code] = {'error': str(e)[:200], 'regex': regex_facts(doc)}

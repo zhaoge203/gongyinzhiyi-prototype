@@ -1,12 +1,12 @@
 {
- "R1": {
+ "P01": {
   "log": [
-   "[parse] 解析 R1，得到 104 个原文块",
+   "[parse] 解析 P01，得到 104 个原文块",
    "[extract] 第 1 次抽取，交叉校验=通过",
    "[interpret] 第 1 次生成成功",
-   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 22.6 vs 原文 24.4 → 通过",
+   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 20.2 vs 原文 24.4 → 通过",
    "[review_gate] 无需人工复核，自动放行",
-   "[output] R1 解读放行"
+   "[output] P01 解读放行"
   ],
   "review_required": null,
   "review_reason": null,
@@ -20,7 +20,7 @@
    "checked": 13,
    "quiz_checked": 3,
    "readability": {
-    "gen_avg": 22.6,
+    "gen_avg": 20.2,
     "src_avg": 24.4,
     "ok": true,
     "reason": "",
@@ -31,14 +31,14 @@
   "retry_extract": 1,
   "retry_interpret": 1
  },
- "R2": {
+ "P02": {
   "log": [
-   "[parse] 解析 R2，得到 120 个原文块",
+   "[parse] 解析 P02，得到 120 个原文块",
    "[extract] 第 1 次抽取，交叉校验=通过",
    "[interpret] 第 1 次生成成功",
-   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 19.1 vs 原文 22.3 → 通过",
+   "[validate] 受检 13 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.6 vs 原文 22.3 → 通过",
    "[review_gate] 无需人工复核，自动放行",
-   "[output] R2 解读放行"
+   "[output] P02 解读放行"
   ],
   "review_required": null,
   "review_reason": null,
@@ -52,7 +52,7 @@
    "checked": 13,
    "quiz_checked": 3,
    "readability": {
-    "gen_avg": 19.1,
+    "gen_avg": 17.6,
     "src_avg": 22.3,
     "ok": true,
     "reason": "",
@@ -63,14 +63,14 @@
   "retry_extract": 1,
   "retry_interpret": 1
  },
- "R3": {
+ "P03": {
   "log": [
-   "[parse] 解析 R3，得到 139 个原文块",
+   "[parse] 解析 P03，得到 139 个原文块",
    "[extract] 第 1 次抽取，交叉校验=通过",
    "[interpret] 第 1 次生成成功",
-   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 18.0 vs 原文 22.3 → 通过",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.1 vs 原文 22.3 → 通过",
    "[review_gate] 无需人工复核，自动放行",
-   "[output] R3 解读放行"
+   "[output] P03 解读放行"
   ],
   "review_required": null,
   "review_reason": null,
@@ -84,7 +84,7 @@
    "checked": 12,
    "quiz_checked": 3,
    "readability": {
-    "gen_avg": 18.0,
+    "gen_avg": 17.1,
     "src_avg": 22.3,
     "ok": true,
     "reason": "",
@@ -95,14 +95,14 @@
   "retry_extract": 1,
   "retry_interpret": 1
  },
- "R4": {
+ "P04": {
   "log": [
-   "[parse] 解析 R4，得到 116 个原文块",
+   "[parse] 解析 P04，得到 116 个原文块",
    "[extract] 第 1 次抽取，交叉校验=通过",
    "[interpret] 第 1 次生成成功",
-   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 15.2 vs 原文 22.7 → 通过",
+   "[validate] 受检 16 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 15.8 vs 原文 22.7 → 通过",
    "[review_gate] 无需人工复核，自动放行",
-   "[output] R4 解读放行"
+   "[output] P04 解读放行"
   ],
   "review_required": null,
   "review_reason": null,
@@ -113,10 +113,10 @@
    "bad_anchors": [],
    "bad_expressions": [],
    "quiz_issues": [],
-   "checked": 15,
+   "checked": 16,
    "quiz_checked": 3,
    "readability": {
-    "gen_avg": 15.2,
+    "gen_avg": 15.8,
     "src_avg": 22.7,
     "ok": true,
     "reason": "",
@@ -126,5 +126,513 @@
   },
   "retry_extract": 1,
   "retry_interpret": 1
+ },
+ "P05": {
+  "log": [
+   "[parse] 解析 P05，得到 264 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成失败：4 validation errors for Interpretation\nrisk_sources\n  Input should be a valid list [type=list_type, input_value='B051|B1",
+   "[validate] 无解读结果，判定不合格",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 21.0 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 21.0,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P07": {
+  "log": [
+   "[parse] 解析 P07，得到 1223 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 1，题目问题 0；可读性 句长 15.2 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 1，题目问题 0；可读性 句长 15.2 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 [{'item': 'glossary[1]', 'words': ['一定'], 'text': '业绩比较基准：管理人设定的投资目标，不是您一定能拿到的收益。'}]，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 [{'item': 'glossary[1]', 'words': ['一定'], 'text': '业绩比较基准：管理人设定的投资目标，不是您一定能拿到的收益。'}]，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [
+    {
+     "item": "glossary[1]",
+     "words": [
+      "一定"
+     ],
+     "text": "业绩比较基准：管理人设定的投资目标，不是您一定能拿到的收益。"
+    }
+   ],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 15.2,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P08": {
+  "log": [
+   "[parse] 解析 P08，得到 692 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.8 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.6 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 17.6,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P09": {
+  "log": [
+   "[parse] 解析 P09，得到 1368 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成失败（结构化输出为空）",
+   "[validate] 无解读结果，判定不合格",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 1，题目问题 0；可读性 句长 23.5 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 [{'item': 'risk_cards[1]', 'words': ['保本'], 'text': '您的钱投的是货币市场工具，不是存款，不承诺保本。'}]，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 [{'item': 'risk_cards[1]', 'words': ['保本'], 'text': '您的钱投的是货币市场工具，不是存款，不承诺保本。'}]，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [
+    {
+     "item": "risk_cards[1]",
+     "words": [
+      "保本"
+     ],
+     "text": "您的钱投的是货币市场工具，不是存款，不承诺保本。"
+    }
+   ],
+   "quiz_issues": [],
+   "checked": 15,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 23.5,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P10": {
+  "log": [
+   "[parse] 解析 P10，得到 1707 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 20.6 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 19.5 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 19.5,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P11": {
+  "log": [
+   "[parse] 解析 P11，得到 110 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.8 vs 原文 24.6 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] P11 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 17.8,
+    "src_avg": 24.6,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "P12": {
+  "log": [
+   "[parse] 解析 P12，得到 153 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成失败：4 validation errors for Interpretation\nrisk_sources\n  Input should be a valid list [type=list_type, input_value='B115|B1",
+   "[validate] 无解读结果，判定不合格",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 16.7 vs 原文 17.4 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] P12 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 16.7,
+    "src_avg": 17.4,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P13": {
+  "log": [
+   "[parse] 解析 P13，得到 1443 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 19.7 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 20.9 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 15,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 20.9,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P14": {
+  "log": [
+   "[parse] 解析 P14，得到 368 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 11 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 3；可读性 句长 16.8 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 11 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 15.2 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 11,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 15.2,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P15": {
+  "log": [
+   "[parse] 解析 P15，得到 288 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 16 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 24.9 vs 原文 25.0 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] P15 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 16,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 24.9,
+    "src_avg": 25.0,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "P16": {
+  "log": [
+   "[parse] 解析 P16，得到 146 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 14 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 16.0 vs 原文 21.7 → 通过",
+   "[review_gate] 无需人工复核，自动放行",
+   "[output] P16 解读放行"
+  ],
+  "review_required": null,
+  "review_reason": null,
+  "review_decision": "auto_approved",
+  "cross_check_pass": true,
+  "validation": {
+   "pass": true,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 14,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 16.0,
+    "src_avg": 21.7,
+    "ok": true,
+    "reason": "",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 1
+ },
+ "P17": {
+  "log": [
+   "[parse] 解析 P17，得到 4431 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 22.8 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 19.0 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 19.0,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P18": {
+  "log": [
+   "[parse] 解析 P18，得到 3612 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 15 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.8 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 17 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 6；可读性 句长 19.9 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 ['第 2 题选项数异常', '第 2 题答案序号非法', '第 2 题锚点无效', '第 3 题选项数异常', '第 3 题答案序号非法', '第 3 题锚点无效']，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 ['第 2 题选项数异常', '第 2 题答案序号非法', '第 2 题锚点无效', '第 3 题选项数异常', '第 3 题答案序号非法', '第 3 题锚点无效']，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [
+    "第 2 题选项数异常",
+    "第 2 题答案序号非法",
+    "第 2 题锚点无效",
+    "第 3 题选项数异常",
+    "第 3 题答案序号非法",
+    "第 3 题锚点无效"
+   ],
+   "checked": 17,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 19.9,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P19": {
+  "log": [
+   "[parse] 解析 P19，得到 3560 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 16.5 vs 原文 0.0 → 不通过（触发重写）",
+   "[interpret] 第 2 次生成成功",
+   "[validate] 受检 12 项（含确认题 3 道）：锚点问题 0，表达问题 0，题目问题 0；可读性 句长 17.1 vs 原文 0.0 → 不通过（触发重写）",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 []，表达问题 []，题目问题 []，可读性 句长超出容差",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [],
+   "bad_expressions": [],
+   "quiz_issues": [],
+   "checked": 12,
+   "quiz_checked": 3,
+   "readability": {
+    "gen_avg": 17.1,
+    "src_avg": 0.0,
+    "ok": false,
+    "reason": "句长超出容差",
+    "tolerance": 1.2,
+    "absolute_max": 30.0
+   }
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
+ },
+ "P20": {
+  "log": [
+   "[parse] 解析 P20，得到 187 个原文块",
+   "[extract] 第 1 次抽取，交叉校验=通过",
+   "[interpret] 第 1 次生成失败：4 validation errors for Interpretation\nrisk_sources\n  Input should be a valid list [type=list_type, input_value='B145|B1",
+   "[validate] 无解读结果，判定不合格",
+   "[interpret] 第 2 次生成失败：4 validation errors for Interpretation\nrisk_sources\n  Input should be a valid list [type=list_type, input_value='B145|B1",
+   "[validate] 无解读结果，判定不合格",
+   "[force_review] 自动校验超限，强制转人工复核：自动校验连续 2 次未通过：锚点问题 ['<无解读结果>']，表达问题 []，题目问题 None，可读性 通过"
+  ],
+  "review_required": true,
+  "review_reason": "自动校验连续 2 次未通过：锚点问题 ['<无解读结果>']，表达问题 []，题目问题 None，可读性 通过",
+  "review_decision": null,
+  "cross_check_pass": true,
+  "validation": {
+   "pass": false,
+   "bad_anchors": [
+    "<无解读结果>"
+   ],
+   "bad_expressions": [],
+   "checked": 0
+  },
+  "retry_extract": 1,
+  "retry_interpret": 2
  }
 }
